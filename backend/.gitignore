@@ -1,0 +1,25 @@
+# dependencies
+node_modules
+W
+# environment variables
+.env
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# OS files
+.DS_Store
+
+# editor
+.vscode/
+.idea/
