@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Editheader from "../components/Editheader"; // ✅ consistent casing
 
 function ManageHeaders() {
   const [headers, setHeaders] = useState([]);
   const [headerName, setHeaderName] = useState("");
   const [headerIndex, setHeaderIndex] = useState("");
   const [viewHeaders, setViewHeaders] = useState(false);
+  const [editHeaderId, setEditHeaderId] = useState(null); // ✅ state for modal
 
   // ✅ Fetch headers from backend
   useEffect(() => {
@@ -46,30 +48,6 @@ function ManageHeaders() {
       alert(`🗑️ Header '${name}' deleted successfully!`);
     } catch (err) {
       console.error("❌ Error deleting header:", err.message);
-    }
-  };
-
-  // ✅ Edit header (by name)
-  const handleEditHeader = async (oldName) => {
-    const newName = prompt("Enter new header name:");
-    const newIndex = prompt("Enter new header index:");
-    if (!newName || !newIndex) return;
-
-    try {
-      const res = await axios.put(
-        `http://localhost:5000/api/headers/${oldName}`,
-        {
-          name: newName,
-          index: newIndex,
-        }
-      );
-
-      setHeaders(
-        headers.map((h) => (h.name === oldName ? res.data.header : h))
-      );
-      alert("✅ Header updated successfully!");
-    } catch (err) {
-      console.error("❌ Error updating header:", err.message);
     }
   };
 
@@ -132,7 +110,7 @@ function ManageHeaders() {
                 </span>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleEditHeader(h.name)}
+                    onClick={() => setEditHeaderId(h._id)} // ✅ open modal
                     className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-600"
                   >
                     Edit
@@ -148,6 +126,21 @@ function ManageHeaders() {
             ))
           )}
         </ul>
+      )}
+
+      {/* ✅ Edit Modal */}
+      {editHeaderId && (
+        <Editheader
+          headerId={editHeaderId}
+          onClose={() => setEditHeaderId(null)}
+          onUpdated={(updatedHeader) => {
+            setHeaders(
+              headers.map((h) =>
+                h._id === updatedHeader._id ? updatedHeader : h
+              )
+            );
+          }}
+        />
       )}
     </section>
   );

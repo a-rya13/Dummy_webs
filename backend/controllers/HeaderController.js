@@ -37,13 +37,26 @@ export const getHeaders = async (req, res) => {
   }
 };
 
+// ======================== GET ONE ========================
+export const getHeaderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const header = await Header.findById(id);
+    if (!header) return res.status(404).json({ message: "Header not found" });
+    res.json(header);
+  } catch (error) {
+    console.error("❌ Error fetching header:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 // ======================== UPDATE ========================
 export const updateHeader = async (req, res) => {
   try {
-    const { oldName } = req.params; // find header by name
+    const { id } = req.params; // ✅ find by _id
     const { name, index } = req.body;
 
-    const header = await Header.findOne({ name: oldName });
+    const header = await Header.findById(id);
     if (!header) return res.status(404).json({ message: "Header not found" });
 
     const prevName = header.name;
@@ -53,7 +66,7 @@ export const updateHeader = async (req, res) => {
     header.index = index || header.index;
     await header.save();
 
-    // ✅ Cascade update in posts
+    // ✅ Cascade update in posts if name changed
     if (name && name !== prevName) {
       await Post.updateMany({ category: prevName }, { category: name });
     }
@@ -68,19 +81,19 @@ export const updateHeader = async (req, res) => {
 // ======================== DELETE ========================
 export const deleteHeader = async (req, res) => {
   try {
-    const { name } = req.params;
+    const { id } = req.params;
 
-    const header = await Header.findOne({ name });
+    const header = await Header.findById(id);
     if (!header) return res.status(404).json({ message: "Header not found" });
 
     // delete header
     await header.deleteOne();
 
     // ✅ Cascade delete posts under this header
-    await Post.deleteMany({ category: name });
+    await Post.deleteMany({ category: header.name });
 
     res.json({
-      message: `🗑️ Header '${name}' and all related posts deleted successfully`,
+      message: `🗑️ Header '${header.name}' and all related posts deleted successfully`,
     });
   } catch (error) {
     console.error("❌ Error deleting header:", error.message);
