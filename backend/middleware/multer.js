@@ -1,16 +1,24 @@
-// multer.js
+// middleware/multer.js
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import cloudinary from "../config/cloudconfig.js";
+import { v2 as cloudinary } from "cloudinary";
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "uploads", // change folder name if needed
-    allowed_formats: ["jpg", "png", "jpeg"],
-  },
-});
-
+// Multer will store files in memory (as buffer)
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Helper function to upload to Cloudinary
+export const uploadToCloudinary = async (fileBuffer, folder = "uploads") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder }, // target folder in Cloudinary
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    stream.end(fileBuffer);
+  });
+};
+
 export default upload;
+

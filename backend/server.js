@@ -6,7 +6,7 @@ import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import headerRoutes from "./routes/headerRoutes.js";
 import websiteRoutes from "./routes/websiteRoutes.js";
-
+import "./config/cloudconfig.js";
 dotenv.config();
 
 // Connect Database

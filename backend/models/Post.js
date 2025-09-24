@@ -32,6 +32,11 @@ const postSchema = new mongoose.Schema(
         type: String, // store file URLs or file paths
       },
     ],
+    pdfLink: [
+      {
+        type: String, // store file URLs or file paths
+      },
+    ],
     start_date: {
       type: Date,
       required: true,
