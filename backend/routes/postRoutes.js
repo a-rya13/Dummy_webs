@@ -8,15 +8,17 @@ import {
   getExpiredPosts,
   getActivePosts,
   getHeaders,
+  editPost,
 } from "../controllers/PostController.js";
 import upload from "../middleware/multer.js";
+import uploadFiles from "../middleware/multer2.js";
 
 const router = express.Router();
 
 // ----------------- Routes ------------------
 
 //
-router.post("/", upload.single("attachments"), createPost);
+router.post("/", uploadFiles, createPost);
 
 //
 router.get("/", getPosts);
@@ -25,7 +27,7 @@ router.get("/", getPosts);
 router.get("/:id", getPostById);
 
 //
-router.put("/:id", updatePost);
+router.put("/:id", uploadFiles, editPost);
 
 //
 router.delete("/:id", deletePost);
