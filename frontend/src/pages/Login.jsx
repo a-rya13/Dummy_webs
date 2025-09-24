@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ChangePassword from "../components/ChangePassword"; // ✅ import the component
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [login, setLogin] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false); // ✅ state for modal
 
   const navigate = useNavigate();
 
@@ -96,15 +98,18 @@ function Login() {
             <button
               type="button"
               className="text-blue-400 hover:underline hover:text-blue-300 transition"
-              onClick={() =>
-                toast.info("Change password flow not implemented yet.")
-              }
+              onClick={() => setShowChangePassword(true)} // ✅ show modal
             >
               Change Password
             </button>
           </div>
         </form>
       </div>
+
+      {/* ✅ Show Change Password Modal */}
+      {showChangePassword && (
+        <ChangePassword onClose={() => setShowChangePassword(false)} />
+      )}
     </div>
   );
 }

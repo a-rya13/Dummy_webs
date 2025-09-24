@@ -2,14 +2,12 @@ import Admin from "../models/Admin.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-// Register Admin (for first setup)
+// ================= REGISTER =================
 export const registerAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
 
     const existingAdmin = await Admin.findOne({ username });
-    console.log(existingAdmin);
-
     if (existingAdmin) {
       return res.status(400).json({ message: "Admin already exists" });
     }
@@ -25,44 +23,65 @@ export const registerAdmin = async (req, res) => {
   }
 };
 
-// Login Admin (plain text check only)
-
+// ================= LOGIN =================
 export const loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log("🔵 Login request received:", req.body);
 
     // ✅ Find admin
     const admin = await Admin.findOne({ username });
-    console.log(admin);
+    if (!admin) return res.status(400).json({ message: "Invalid credentials" });
 
-    if (!admin) {
-      console.log("❌ Admin not found");
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // ✅ Compare password with bcrypt
+    // ✅ Compare password
     const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      console.log("❌ Wrong password");
+    if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
-    }
 
     // ✅ Generate JWT token
     const token = jwt.sign(
       { id: admin._id, username: admin.username },
-      process.env.JWT_SECRET || "defaultsecret", // fallback if no secret in .env
-      { expiresIn: "1h" } // token valid for 1 hour
+      process.env.JWT_SECRET || "defaultsecret",
+      { expiresIn: "1h" }
     );
 
-    console.log("✅ Login successful");
     res.json({
       message: "Login successful ✅",
-      token, // send token to frontend
+      token,
       admin: { username: admin.username },
     });
   } catch (error) {
-    console.error("🔴 Server error:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// ================= CHANGE PASSWORD =================
+export const changePassword = async (req, res) => {
+  try {
+    const { username, oldPassword, newPassword, confirmPassword } = req.body;
+
+    // ✅ Check new passwords match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "New passwords do not match ❌" });
+    }
+
+    // ✅ Find admin
+    const admin = await Admin.findOne({ username });
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    // ✅ Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect ❌" });
+    }
+
+    // ✅ Hash and save new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    admin.password = hashedPassword;
+    await admin.save();
+
+    res.json({ message: "Password changed successfully ✅" });
+  } catch (error) {
+    console.error("❌ Error changing password:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

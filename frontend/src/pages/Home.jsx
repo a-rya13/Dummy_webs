@@ -69,14 +69,14 @@ function Home() {
       {post.useful_links?.length > 0 && (
         <div className="mt-2">
           <p className="text-sm text-gray-300 font-semibold">Useful Links:</p>
-          <ul className="list-disc list-inside text-blue-400">
+          <ul className="list-disc list-inside text-blue-400 break-words">
             {post.useful_links.map((link, idx) => (
-              <li key={idx}>
+              <li key={idx} className="truncate">
                 <a
                   href={link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:underline"
+                  className="hover:underline break-all"
                 >
                   {link}
                 </a>
@@ -86,10 +86,17 @@ function Home() {
         </div>
       )}
 
-      <p className="text-sm text-gray-400 mt-2">
-        Index: {post.index} | Start:{" "}
-        {new Date(post.start_date).toLocaleDateString()} | Last:{" "}
-        {new Date(post.last_date).toLocaleDateString()}
+      {/* 📅 Dates + Index */}
+      <p className="text-sm text-gray-400 mt-3 flex flex-wrap gap-3">
+        <span className="bg-green-900/40 text-green-300 px-2 py-1 rounded-md text-xs font-semibold">
+          🟢 Start: {new Date(post.start_date).toLocaleDateString()}
+        </span>
+        <span className="bg-red-900/40 text-red-300 px-2 py-1 rounded-md text-xs font-semibold">
+          🔴 Last: {new Date(post.last_date).toLocaleDateString()}
+        </span>
+        <span className="bg-gray-800 text-gray-300 px-2 py-1 rounded-md text-xs">
+          #️⃣ Index: {post.index}
+        </span>
       </p>
     </div>
   );
