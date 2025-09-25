@@ -721,7 +721,10 @@ function ManagePosts() {
   // helper to place caret at end of contentEditable
   function placeCaretAtEnd(el) {
     el.focus();
-    if (typeof window.getSelection !== "undefined" && typeof document.createRange !== "undefined") {
+    if (
+      typeof window.getSelection !== "undefined" &&
+      typeof document.createRange !== "undefined"
+    ) {
       const range = document.createRange();
       range.selectNodeContents(el);
       range.collapse(false);
@@ -760,8 +763,10 @@ function ManagePosts() {
     if (pdfInputRef.current) pdfInputRef.current.value = "";
   };
 
-  const removeImageAt = (index) => setImageFiles((prev) => prev.filter((_, i) => i !== index));
-  const removePdfAt = (index) => setPdfFiles((prev) => prev.filter((_, i) => i !== index));
+  const removeImageAt = (index) =>
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+  const removePdfAt = (index) =>
+    setPdfFiles((prev) => prev.filter((_, i) => i !== index));
 
   // ---------- Save Post ----------
   const handleSavePost = async () => {
@@ -865,7 +870,48 @@ function ManagePosts() {
   // ---------- Render ----------
   return (
     <section className="bg-white/5 backdrop-blur-md rounded-xl shadow-lg p-4 sm:p-6 md:p-8 flex flex-col border border-gray-700">
-      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-yellow-300">📰 Manage Posts</h2>
+      {/* ====== Only CSS changes below (scoped to .posts-scroll) ======
+          - makes the scrollbar slimmer, rounded, colored to match UI
+          - adds right padding so boxes don't get overlapped by the scrollbar
+          - uses both webkit and firefox rules
+       */}
+      <style>{`
+        /* apply to the posts list only */
+        .posts-scroll {
+          padding-right: 12px; /* keep some spacing from scrollbar */
+          box-sizing: border-box;
+          scrollbar-width: thin; /* firefox */
+          scrollbar-color: #4b5563 #0b1220; /* thumb track (firefox) */
+        }
+
+        /* Webkit browsers */
+        .posts-scroll::-webkit-scrollbar {
+          width: 10px;
+          height: 10px;
+        }
+        .posts-scroll::-webkit-scrollbar-track {
+          background: transparent;
+          border-radius: 999px;
+        }
+        .posts-scroll::-webkit-scrollbar-thumb {
+          background-color: #374151; /* gray-700 */
+          border-radius: 999px;
+          border: 2px solid rgba(15, 23, 42, 0.6); /* slight inset look */
+        }
+        .posts-scroll::-webkit-scrollbar-thumb:hover {
+          background-color: #4b5563; /* gray-600 */
+        }
+
+        /* make sure long links break nicely inside the box */
+        .posts-scroll .break-all {
+          word-break: break-word;
+          overflow-wrap: anywhere;
+        }
+      `}</style>
+
+      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-yellow-300">
+        📰 Manage Posts
+      </h2>
 
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
         <button
@@ -976,7 +1022,9 @@ function ManagePosts() {
               onBlur={() => {
                 isFocusedRef.current = false;
                 // when blurred, ensure state and DOM are synced
-                const sanitized = DOMPurify.sanitize(postDetailsRef.current?.innerHTML ?? "");
+                const sanitized = DOMPurify.sanitize(
+                  postDetailsRef.current?.innerHTML ?? ""
+                );
                 setPostDetails(sanitized);
                 setCharCount(postDetailsRef.current?.textContent?.length ?? 0);
               }}
@@ -1084,8 +1132,13 @@ function ManagePosts() {
             {pdfFiles.length > 0 && (
               <div className="mt-2 space-y-1">
                 {pdfFiles.map((file, idx) => (
-                  <div key={idx} className="flex items-center justify-between bg-gray-800 p-2 rounded">
-                    <div className="text-sm truncate max-w-[60%]">{file.name}</div>
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between bg-gray-800 p-2 rounded"
+                  >
+                    <div className="text-sm truncate max-w-[60%]">
+                      {file.name}
+                    </div>
                     <div className="flex gap-2">
                       <a
                         href={URL.createObjectURL(file)}
@@ -1094,7 +1147,11 @@ function ManagePosts() {
                         className="text-blue-400 underline text-sm"
                         onClick={() => {
                           // revoke after a bit
-                          setTimeout(() => URL.revokeObjectURL(URL.createObjectURL(file)), 5000);
+                          setTimeout(
+                            () =>
+                              URL.revokeObjectURL(URL.createObjectURL(file)),
+                            5000
+                          );
                         }}
                       >
                         Preview
@@ -1143,8 +1200,9 @@ function ManagePosts() {
             ))}
           </select>
 
-          <ul className="space-y-3 max-h-[60vh] overflow-auto">
-            {posts.filter((p) => postMatchesHeader(p, selectedHeader)).length === 0 ? (
+          <ul className="space-y-3 max-h-[60vh] overflow-auto posts-scroll">
+            {posts.filter((p) => postMatchesHeader(p, selectedHeader))
+              .length === 0 ? (
               <p className="text-gray-400">No posts for this header.</p>
             ) : (
               posts
@@ -1155,7 +1213,9 @@ function ManagePosts() {
                     className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-800 p-3 rounded-lg shadow"
                   >
                     <div className="w-full md:w-3/4">
-                      <h3 className="font-bold text-sm md:text-base">{p.title}</h3>
+                      <h3 className="font-bold text-sm md:text-base">
+                        {p.title}
+                      </h3>
 
                       <div
                         className="mt-1 text-sm text-gray-200"
@@ -1218,8 +1278,14 @@ function ManagePosts() {
                       )}
 
                       <p className="text-xs text-gray-400 mt-2">
-                        Index: {p.index} | Start: {p.start_date ? new Date(p.start_date).toLocaleDateString() : "N/A"} | Last:{" "}
-                        {p.last_date ? new Date(p.last_date).toLocaleDateString() : "N/A"}
+                        Index: {p.index} | Start:{" "}
+                        {p.start_date
+                          ? new Date(p.start_date).toLocaleDateString()
+                          : "N/A"}{" "}
+                        | Last:{" "}
+                        {p.last_date
+                          ? new Date(p.last_date).toLocaleDateString()
+                          : "N/A"}
                       </p>
                     </div>
 
@@ -1256,7 +1322,11 @@ function ManagePosts() {
         <EditPosts
           postId={editPostId}
           onClose={() => setEditPostId(null)}
-          onUpdated={(updatedPost) => setPosts((prev) => prev.map((p) => (p._id === updatedPost._id ? updatedPost : p)))}
+          onUpdated={(updatedPost) =>
+            setPosts((prev) =>
+              prev.map((p) => (p._id === updatedPost._id ? updatedPost : p))
+            )
+          }
         />
       )}
     </section>
