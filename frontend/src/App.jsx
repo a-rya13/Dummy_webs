@@ -1,4 +1,6 @@
 import React from "react";
+import PostDetails from "./components/PostDetails";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -35,7 +37,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/post/:id" element={<PostDetails />} />
       </Routes>
+
       {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} />
     </Router>

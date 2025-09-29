@@ -196,14 +196,16 @@
 // }
 
 // export default Home;
+// Home.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const [websiteName, setWebsiteName] = useState("News Web");
-  const [headers, setHeaders] = useState([]); // [{ _id, name }]
+  const [headers, setHeaders] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [selectedHeaderId, setSelectedHeaderId] = useState(""); // stores header._id
+  const [selectedHeaderId, setSelectedHeaderId] = useState("");
   const [selectedHeaderName, setSelectedHeaderName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -234,101 +236,15 @@ export default function Home() {
     fetchAll();
   }, []);
 
-  // Accepts header._id
-  const getPostsByCategory = (categoryId) => {
+  const getActivePostsByCategory = (categoryId) => {
     const today = new Date();
     const categoryPosts = posts.filter((p) => p.category === categoryId);
-
-    const active = categoryPosts.filter((p) => new Date(p.last_date) >= today);
-    const expired = categoryPosts.filter((p) => new Date(p.last_date) < today);
-
-    return { active, expired };
+    return categoryPosts.filter((p) => new Date(p.last_date) >= today);
   };
 
-  const { active, expired } = selectedHeaderId
-    ? getPostsByCategory(selectedHeaderId)
-    : { active: [], expired: [] };
-
-  // Reusable Post Card
-  const PostCard = ({ post, highlight }) => {
-    const borderClass = highlight === "green" ? "border-green-500" : "border-red-500";
-
-    return (
-      <div className={`bg-white/5 backdrop-blur-md p-6 rounded-xl shadow-lg border ${borderClass} transition`}>
-        <h4 className="text-lg font-bold mb-2">{post.title}</h4>
-
-        <div
-          className="text-gray-300 mb-3"
-          dangerouslySetInnerHTML={{ __html: post.description }}
-        />
-
-        {/* Attachments (images) */}
-        {post.attachments?.length > 0 && (
-          <div className="mb-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {post.attachments.map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt={`${post.title} - ${i}`}
-                className="w-full h-32 object-cover rounded-md border border-gray-700"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* PDF Links */}
-        {post.pdfLink?.length > 0 && (
-          <div className="mt-2">
-            <p className="text-sm text-gray-300 font-semibold">PDFs:</p>
-            <ul className="list-disc list-inside text-blue-400 break-words">
-              {post.pdfLink.map((link, idx) => (
-                <li key={idx}>
-                  <a href={link} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
-                    Link{idx+1} 
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Useful Links */}
-        {post.useful_links?.length > 0 && (
-          <div className="mt-3">
-            <p className="text-sm text-gray-300 font-semibold">Useful Links:</p>
-            <ul className="list-disc list-inside text-blue-400 break-words">
-              {post.useful_links.map((link, idx) => (
-                <li key={idx} className="truncate">
-                  <a href={link} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
-                    Link{idx+1}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Dates + Index */}
-        <p className="text-sm text-gray-400 mt-4 flex flex-wrap gap-3 items-center">
-          <span className="bg-green-900/40 text-green-300 px-2 py-1 rounded-md text-xs font-semibold">
-            🟢 Start: {new Date(post.start_date).toLocaleDateString()}
-          </span>
-          <span className="bg-red-900/40 text-red-300 px-2 py-1 rounded-md text-xs font-semibold">
-            🔴 Last: {new Date(post.last_date).toLocaleDateString()}
-          </span>
-          <span className="bg-gray-800 text-gray-300 px-2 py-1 rounded-md text-xs">
-            #️⃣ Index: {post.index}
-          </span>
-          <span className="bg-gray-800 text-gray-300 px-2 py-1 rounded-md text-xs">
-            🕒 Created: {new Date(post.createdAt).toLocaleString()}
-          </span>
-        </p>
-      </div>
-    );
-  };
+  const active = selectedHeaderId
+    ? getActivePostsByCategory(selectedHeaderId)
+    : [];
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white font-sans">
@@ -339,8 +255,13 @@ export default function Home() {
           <ul className="flex gap-4 items-center">
             <li>
               <button
-                onClick={() => { setSelectedHeaderId(""); setSelectedHeaderName(""); }}
-                className={`hover:text-yellow-300 transition ${selectedHeaderId === "" ? "underline" : ""}`}
+                onClick={() => {
+                  setSelectedHeaderId("");
+                  setSelectedHeaderName("");
+                }}
+                className={`hover:text-yellow-300 transition ${
+                  selectedHeaderId === "" ? "underline" : ""
+                }`}
               >
                 Home
               </button>
@@ -348,8 +269,13 @@ export default function Home() {
             {headers.map((h) => (
               <li key={h._id}>
                 <button
-                  onClick={() => { setSelectedHeaderId(h._id); setSelectedHeaderName(h.name); }}
-                  className={`hover:text-yellow-300 transition ${selectedHeaderId === h._id ? "underline" : ""}`}
+                  onClick={() => {
+                    setSelectedHeaderId(h._id);
+                    setSelectedHeaderName(h.name);
+                  }}
+                  className={`hover:text-yellow-300 transition ${
+                    selectedHeaderId === h._id ? "underline" : ""
+                  }`}
                 >
                   {h.name}
                 </button>
@@ -362,7 +288,9 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-1 p-8">
         <h2 className="text-2xl font-semibold mb-6 text-yellow-300">
-          {selectedHeaderId ? `Posts under ${selectedHeaderName}` : "✨ Latest Updates"}
+          {selectedHeaderId
+            ? `Posts under ${selectedHeaderName}`
+            : "✨ Latest Updates"}
         </h2>
 
         {loading ? (
@@ -370,50 +298,49 @@ export default function Home() {
         ) : error ? (
           <p className="text-red-400">{error}</p>
         ) : selectedHeaderId ? (
-          active.length === 0 && expired.length === 0 ? (
-            <p className="text-gray-400">No posts available for this category.</p>
+          active.length === 0 ? (
+            <p className="text-gray-400">
+              No posts available for this category.
+            </p>
           ) : (
-            <div className="space-y-10">
-              {/* Active Posts */}
-              {active.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-bold text-green-400 mb-4">✅ Active Posts</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {active.map((p) => (
-                      <PostCard key={p._id} post={p} highlight="green" />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Expired Posts */}
-              {expired.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-bold text-red-400 mb-4">❌ Expired Posts</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {expired.map((p) => (
-                      <PostCard key={p._id} post={p} highlight="red" />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <p className="mt-6 text-lg font-semibold text-yellow-400">
-                Total Posts in {selectedHeaderName}: {active.length + expired.length}
-              </p>
-            </div>
+            <ul className="space-y-3">
+              {active.map((p) => (
+                <li key={p._id}>
+                  <Link
+                    to={`/post/${p._id}`}
+                    className="text-blue-400 hover:underline"
+                  >
+                    {p.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )
         ) : (
           <div>
-            <p className="text-gray-400 mb-6">Please select a category from the navigation above.</p>
+            <p className="text-gray-400 mb-6">
+              Please select a category from the navigation above.
+            </p>
 
-            {/* Optionally show some latest posts across all headers */}
-            <h3 className="text-xl font-bold text-yellow-300 mb-4">Recent Posts</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.slice(0, 9).map((p) => (
-                <PostCard key={p._id} post={p} highlight={new Date(p.last_date) >= new Date() ? "green" : "red"} />
-              ))}
-            </div>
+            {/* Recent Active Posts */}
+            <h3 className="text-xl font-bold text-yellow-300 mb-4">
+              Recent Posts
+            </h3>
+            <ul className="space-y-3">
+              {posts
+                .filter((p) => new Date(p.last_date) >= new Date())
+                .slice(0, 9)
+                .map((p) => (
+                  <li key={p._id}>
+                    <Link
+                      to={`/post/${p._id}`}
+                      className="text-blue-400 hover:underline"
+                    >
+                      {p.title}
+                    </Link>
+                  </li>
+                ))}
+            </ul>
           </div>
         )}
       </main>

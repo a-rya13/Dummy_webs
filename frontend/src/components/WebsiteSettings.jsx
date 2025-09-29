@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function WebsiteSettings() {
   const [websiteName, setWebsiteName] = useState("");
@@ -14,6 +15,7 @@ function WebsiteSettings() {
         }
       } catch (err) {
         console.error("❌ Error fetching website title:", err.message);
+        toast.error("Failed to fetch website title ❌");
       }
     };
     fetchTitle();
@@ -22,7 +24,7 @@ function WebsiteSettings() {
   // ✅ Save updated title to backend
   const handleSave = async () => {
     if (!websiteName.trim()) {
-      alert("⚠️ Website name cannot be empty!");
+      toast.warning("⚠️ Website name cannot be empty!");
       return;
     }
 
@@ -30,13 +32,13 @@ function WebsiteSettings() {
       const res = await axios.post("http://localhost:5000/api/website", {
         title: websiteName,
       });
-      alert(`✅ Website name updated to: ${res.data.website.title}`);
+      toast.success(`✅ Website name updated to: ${res.data.website.title}`);
     } catch (err) {
       console.error(
         "❌ Error saving website title:",
         err.response?.data || err.message
       );
-      alert("Failed to update website name ❌");
+      toast.error("Failed to update website name ❌");
     }
   };
 

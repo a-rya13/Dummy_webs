@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Editheader from "../components/Editheader"; // ✅ consistent casing
+import Editheader from "../components/Editheader";
+import { toast } from "react-toastify";
 
 function ManageHeaders() {
   const [headers, setHeaders] = useState([]);
   const [headerName, setHeaderName] = useState("");
   const [headerIndex, setHeaderIndex] = useState("");
   const [viewHeaders, setViewHeaders] = useState(false);
-  const [editHeaderId, setEditHeaderId] = useState(null); // ✅ state for modal
+  const [editHeaderId, setEditHeaderId] = useState(null);
 
   // ✅ Fetch headers from backend
   useEffect(() => {
@@ -17,6 +18,7 @@ function ManageHeaders() {
         setHeaders(res.data);
       } catch (err) {
         console.error("❌ Error fetching headers:", err.message);
+        toast.error("Failed to fetch headers");
       }
     };
     fetchHeaders();
@@ -24,7 +26,7 @@ function ManageHeaders() {
 
   // ✅ Save header
   const handleSaveHeader = async () => {
-    if (!headerName || !headerIndex) return alert("⚠️ Fill all fields!");
+    if (!headerName || !headerIndex) return toast.warn("⚠️ Fill all fields!");
     try {
       const res = await axios.post("http://localhost:5000/api/headers", {
         name: headerName,
@@ -33,21 +35,23 @@ function ManageHeaders() {
       setHeaders([...headers, res.data.header]);
       setHeaderName("");
       setHeaderIndex("");
-      alert("✅ Header saved successfully!");
+      toast.success("✅ Header saved successfully!");
     } catch (err) {
       console.error("❌ Error saving header:", err.message);
-      alert("Failed to save header");
+      toast.error(err.response?.data?.message || "Failed to save header");
     }
   };
 
-  // ✅ Delete header (by name)
-  const handleDeleteHeader = async (name) => {
+  // ✅ Delete header (by id now)
+  const handleDeleteHeader = async (id) => {
+    toast.info("🕒 Deleting header...");
     try {
-      await axios.delete(`http://localhost:5000/api/headers/${name}`);
-      setHeaders(headers.filter((h) => h.name !== name));
-      alert(`🗑️ Header '${name}' deleted successfully!`);
+      await axios.delete(`http://localhost:5000/api/headers/${id}`);
+      setHeaders(headers.filter((h) => h._id !== id));
+      toast.success("🗑️ Header deleted successfully!");
     } catch (err) {
       console.error("❌ Error deleting header:", err.message);
+      toast.error(err.response?.data?.message || "Failed to delete header");
     }
   };
 
@@ -116,7 +120,7 @@ function ManageHeaders() {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteHeader(h.name)}
+                    onClick={() => handleDeleteHeader(h._id)} // ✅ delete by id
                     className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-800"
                   >
                     Delete
@@ -134,11 +138,17 @@ function ManageHeaders() {
           headerId={editHeaderId}
           onClose={() => setEditHeaderId(null)}
           onUpdated={(updatedHeader) => {
-            setHeaders(
-              headers.map((h) =>
-                h._id === updatedHeader._id ? updatedHeader : h
-              )
-            );
+            if (updatedHeader.deleted) {
+              setHeaders((prev) =>
+                prev.filter((h) => h._id !== updatedHeader._id)
+              );
+            } else {
+              setHeaders((prev) =>
+                prev.map((h) =>
+                  h._id === updatedHeader._id ? updatedHeader : h
+                )
+              );
+            }
           }}
         />
       )}

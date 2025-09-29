@@ -40,6 +40,21 @@ function Editheader({ headerId, onClose, onUpdated }) {
     }
   };
 
+  // ✅ Handle delete
+  const handleDelete = async () => {
+    if (!window.confirm("⚠️ Are you sure you want to delete this header?"))
+      return;
+    try {
+      await axios.delete(`http://localhost:5000/api/headers/${headerId}`);
+      toast.success("🗑️ Header deleted successfully!");
+      onUpdated({ _id: headerId, deleted: true }); // notify parent so it can remove
+      onClose();
+    } catch (err) {
+      console.error("❌ Error deleting header:", err.message);
+      toast.error(err.response?.data?.message || "Failed to delete header");
+    }
+  };
+
   if (loading) return <p className="text-gray-400">Loading...</p>;
   if (!header) return <p className="text-red-400">Header not found.</p>;
 
@@ -72,17 +87,26 @@ function Editheader({ headerId, onClose, onUpdated }) {
           <div className="flex justify-between mt-4">
             <button
               type="button"
-              onClick={onClose}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
+              onClick={handleDelete}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-800 transition"
             >
-              Cancel
+              Delete
             </button>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition"
-            >
-              Save Changes
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition"
+              >
+                Save Changes
+              </button>
+            </div>
           </div>
         </form>
       </div>
