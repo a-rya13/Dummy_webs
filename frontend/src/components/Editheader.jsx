@@ -5,14 +5,13 @@ import { toast } from "react-toastify";
 function Editheader({ headerId, onClose, onUpdated }) {
   const [header, setHeader] = useState(null);
   const [loading, setLoading] = useState(true);
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // ✅ Fetch header details
   useEffect(() => {
     const fetchHeader = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/headers/${headerId}`
-        );
+        const res = await axios.get(`${API_BASE_URL}/api/headers/${headerId}`);
         setHeader(res.data);
         setLoading(false);
       } catch (err) {
@@ -28,7 +27,7 @@ function Editheader({ headerId, onClose, onUpdated }) {
     e.preventDefault();
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/headers/${headerId}`,
+        `${API_BASE_URL}/api/headers/${headerId}`,
         header
       );
       toast.success("✅ Header updated successfully!");
@@ -45,7 +44,7 @@ function Editheader({ headerId, onClose, onUpdated }) {
     if (!window.confirm("⚠️ Are you sure you want to delete this header?"))
       return;
     try {
-      await axios.delete(`http://localhost:5000/api/headers/${headerId}`);
+      await axios.delete(`${API_BASE_URL}/api/headers/${headerId}`);
       toast.success("🗑️ Header deleted successfully!");
       onUpdated({ _id: headerId, deleted: true }); // notify parent so it can remove
       onClose();

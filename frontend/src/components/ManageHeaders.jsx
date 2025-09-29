@@ -9,12 +9,13 @@ function ManageHeaders() {
   const [headerIndex, setHeaderIndex] = useState("");
   const [viewHeaders, setViewHeaders] = useState(false);
   const [editHeaderId, setEditHeaderId] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // ✅ Fetch headers from backend
   useEffect(() => {
     const fetchHeaders = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/headers");
+        const res = await axios.get(`${API_BASE_URL}/api/headers`);
         setHeaders(res.data);
       } catch (err) {
         console.error("❌ Error fetching headers:", err.message);
@@ -28,7 +29,7 @@ function ManageHeaders() {
   const handleSaveHeader = async () => {
     if (!headerName || !headerIndex) return toast.warn("⚠️ Fill all fields!");
     try {
-      const res = await axios.post("http://localhost:5000/api/headers", {
+      const res = await axios.post(`${API_BASE_URL}/api/headers`, {
         name: headerName,
         index: headerIndex,
       });
@@ -46,7 +47,7 @@ function ManageHeaders() {
   const handleDeleteHeader = async (id) => {
     toast.info("🕒 Deleting header...");
     try {
-      await axios.delete(`http://localhost:5000/api/headers/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/headers/${id}`);
       setHeaders(headers.filter((h) => h._id !== id));
       toast.success("🗑️ Header deleted successfully!");
     } catch (err) {

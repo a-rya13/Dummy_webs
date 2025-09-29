@@ -4,12 +4,13 @@ import { toast } from "react-toastify";
 
 function WebsiteSettings() {
   const [websiteName, setWebsiteName] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // ✅ Fetch current website title from backend
   useEffect(() => {
     const fetchTitle = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/website");
+        const res = await axios.get(`${API_BASE_URL}/api/website`);
         if (res.data?.title) {
           setWebsiteName(res.data.title);
         }
@@ -29,7 +30,7 @@ function WebsiteSettings() {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/api/website", {
+      const res = await axios.post(`${API_BASE_URL}/api/website`, {
         title: websiteName,
       });
       toast.success(`✅ Website name updated to: ${res.data.website.title}`);

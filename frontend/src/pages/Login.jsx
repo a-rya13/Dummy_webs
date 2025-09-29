@@ -9,7 +9,8 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [login, setLogin] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false); // ✅ state for modal
+  const [showChangePassword, setShowChangePassword] = useState(false); // ✅
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate();
 
@@ -20,7 +21,7 @@ function Login() {
       console.log("🔵 Sending request to backend...");
       setLogin(true);
 
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         username,
         password,
       });

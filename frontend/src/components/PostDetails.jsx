@@ -7,7 +7,7 @@ export default function PostDetails() {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   // ✅ Helper to normalize links
   const normalizeUrl = (url) => {
     if (!url) return "";
@@ -21,7 +21,7 @@ export default function PostDetails() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/post/${id}`);
+        const res = await axios.get(`${API_BASE_URL}/api/post/${id}`);
         setPost(res.data);
       } catch (err) {
         console.error("❌ Error fetching post:", err);

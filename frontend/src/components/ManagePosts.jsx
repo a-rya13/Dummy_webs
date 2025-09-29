@@ -16,6 +16,7 @@ export default function ManagePosts() {
   const [headers, setHeaders] = useState([]);
   const [posts, setPosts] = useState([]);
   const [selectedHeader, setSelectedHeader] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // Single tab control: "add" | "view" | "expired"
   const [activeTab, setActiveTab] = useState("add");
@@ -56,8 +57,8 @@ export default function ManagePosts() {
       setLoading(true);
       try {
         const [hRes, pRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/headers"),
-          axios.get("http://localhost:5000/api/post"),
+          axios.get(`${API_BASE_URL}/api/headers`),
+          axios.get(`${API_BASE_URL}/api/post`),
         ]);
         if (!mounted) return;
         setHeaders(Array.isArray(hRes.data) ? hRes.data : []);
@@ -212,7 +213,7 @@ export default function ManagePosts() {
       imageFiles.forEach((f) => formData.append("attachments", f));
       pdfFiles.forEach((f) => formData.append("pdfLink", f));
 
-      const res = await axios.post("http://localhost:5000/api/post", formData, {
+      const res = await axios.post(`${API_BASE_URL}/api/post`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -220,7 +221,7 @@ export default function ManagePosts() {
       if (created) {
         setPosts((s) => [...s, created]);
       } else {
-        const postsRes = await axios.get("http://localhost:5000/api/post");
+        const postsRes = await axios.get(`${API_BASE_URL}/api/post`);
         setPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
       }
 
@@ -252,7 +253,7 @@ export default function ManagePosts() {
     if (!window.confirm("Delete this post?")) return;
     setActionLoading(true);
     try {
-      await axios.delete(`http://localhost:5000/api/post/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/post/${id}`);
       setPosts((s) => s.filter((p) => p._id !== id));
       toast.success("Post deleted");
     } catch (err) {

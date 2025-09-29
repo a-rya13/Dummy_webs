@@ -24,7 +24,7 @@
 //       }
 
 //       const res = await axios.post(
-//         "http://localhost:5000/api/auth/change-password",
+//         "${API_BASE_URL}/api/auth/change-password",
 //         {
 //           username: username.trim(),
 //           oldPassword: oldPassword.trim(),
@@ -118,7 +118,14 @@ import { toast } from "react-toastify";
  * - show toggles visibility
  * - onMouseDown prevents default so the input doesn't lose focus
  */
-function PasswordField({ value, onChange, placeholder, show, setShow, required = true }) {
+function PasswordField({
+  value,
+  onChange,
+  placeholder,
+  show,
+  setShow,
+  required = true,
+}) {
   return (
     <div className="relative">
       <input
@@ -141,15 +148,52 @@ function PasswordField({ value, onChange, placeholder, show, setShow, required =
         className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         {show ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-3.5-10-8 0-.667.104-1.31.298-1.925M3 3l18 18" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.88 9.88A3 3 0 0114.12 14.12" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.58 6.58A10.02 10.02 0 0121 11c-1 4.5-5 8-9 8a10.05 10.05 0 01-1.75-.15" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-gray-300"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-3.5-10-8 0-.667.104-1.31.298-1.925M3 3l18 18"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9.88 9.88A3 3 0 0114.12 14.12"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M10.58 6.58A10.02 10.02 0 0121 11c-1 4.5-5 8-9 8a10.05 10.05 0 01-1.75-.15"
+            />
           </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-gray-300"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            />
           </svg>
         )}
       </button>
@@ -162,6 +206,7 @@ export default function ChangePassword({ onClose }) {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // visibility toggles
   const [showOld, setShowOld] = useState(false);
@@ -169,10 +214,22 @@ export default function ChangePassword({ onClose }) {
   const [showConfirm, setShowConfirm] = useState(false);
 
   // useCallback to keep handlers stable (helps avoid focus/jump issues)
-  const handleOldChange = useCallback((e) => setOldPassword(e.target.value), []);
-  const handleNewChange = useCallback((e) => setNewPassword(e.target.value), []);
-  const handleConfirmChange = useCallback((e) => setConfirmPassword(e.target.value), []);
-  const handleUsernameChange = useCallback((e) => setUsername(e.target.value), []);
+  const handleOldChange = useCallback(
+    (e) => setOldPassword(e.target.value),
+    []
+  );
+  const handleNewChange = useCallback(
+    (e) => setNewPassword(e.target.value),
+    []
+  );
+  const handleConfirmChange = useCallback(
+    (e) => setConfirmPassword(e.target.value),
+    []
+  );
+  const handleUsernameChange = useCallback(
+    (e) => setUsername(e.target.value),
+    []
+  );
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -188,7 +245,7 @@ export default function ChangePassword({ onClose }) {
         return;
       }
 
-      const res = await axios.post("http://localhost:5000/api/auth/change-password", {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/change-password`, {
         username: username.trim(),
         oldPassword: oldPassword.trim(),
         newPassword: newPassword.trim(),
@@ -198,7 +255,10 @@ export default function ChangePassword({ onClose }) {
       toast.success(res.data.message || "Password changed");
       onClose && onClose();
     } catch (err) {
-      console.error("❌ Error changing password:", err.response?.data || err.message);
+      console.error(
+        "❌ Error changing password:",
+        err.response?.data || err.message
+      );
       toast.error(err.response?.data?.message || "Failed to change password");
     }
   };
@@ -206,7 +266,9 @@ export default function ChangePassword({ onClose }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
       <div className="bg-gray-900 rounded-xl shadow-lg p-6 w-full max-w-md border border-gray-700">
-        <h2 className="text-xl font-bold text-yellow-300 mb-4">🔑 Change Password</h2>
+        <h2 className="text-xl font-bold text-yellow-300 mb-4">
+          🔑 Change Password
+        </h2>
 
         <form onSubmit={handleChangePassword} className="space-y-4">
           <input

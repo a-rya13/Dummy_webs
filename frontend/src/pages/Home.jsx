@@ -209,6 +209,7 @@ export default function Home() {
   const [selectedHeaderName, setSelectedHeaderName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -217,9 +218,9 @@ export default function Home() {
 
       try {
         const [siteRes, headersRes, postsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/website"),
-          axios.get("http://localhost:5000/api/headers"),
-          axios.get("http://localhost:5000/api/post"),
+          axios.get(`${API_BASE_URL}/api/website`),
+          axios.get(`${API_BASE_URL}/api/headers`),
+          axios.get(`${API_BASE_URL}/api/post`),
         ]);
 
         if (siteRes.data?.title) setWebsiteName(siteRes.data.title);

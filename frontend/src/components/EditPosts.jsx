@@ -421,7 +421,6 @@
 
 // export default EditPosts;
 
-
 // EditPosts.jsx
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
@@ -432,6 +431,7 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const [newImageFiles, setNewImageFiles] = useState([]);
   const [newImagePreviews, setNewImagePreviews] = useState([]);
@@ -450,7 +450,7 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
       setLoading(true);
       setError(null);
       try {
-        const res = await axios.get(`http://localhost:5000/api/post/${postId}`);
+        const res = await axios.get(`${API_BASE_URL}/api/post/${postId}`);
         const fetched = res.data?.post ?? res.data;
         if (mounted) {
           setPost(fetched);
@@ -482,7 +482,10 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
     const images = files.filter((f) => f.type.startsWith("image/"));
     if (images.length === 0) return;
 
-    const previews = images.map((f) => ({ url: URL.createObjectURL(f), name: f.name }));
+    const previews = images.map((f) => ({
+      url: URL.createObjectURL(f),
+      name: f.name,
+    }));
     setNewImageFiles((prev) => [...prev, ...images]);
     setNewImagePreviews((prev) => [...prev, ...previews]);
     if (imageInputRef.current) imageInputRef.current.value = "";
@@ -547,18 +550,28 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
       formData.append("useful_links", JSON.stringify(post.useful_links ?? []));
 
       if (toDeleteImageUrls.size > 0) {
-        formData.append("deleteImageUrls", JSON.stringify(Array.from(toDeleteImageUrls)));
+        formData.append(
+          "deleteImageUrls",
+          JSON.stringify(Array.from(toDeleteImageUrls))
+        );
       }
       if (toDeletePdfUrls.size > 0) {
-        formData.append("deletePdfUrls", JSON.stringify(Array.from(toDeletePdfUrls)));
+        formData.append(
+          "deletePdfUrls",
+          JSON.stringify(Array.from(toDeletePdfUrls))
+        );
       }
 
       newImageFiles.forEach((file) => formData.append("attachments", file));
       newPdfFiles.forEach((file) => formData.append("pdfLink", file));
 
-      const res = await axios.put(`http://localhost:5000/api/post/${postId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.put(
+        `${API_BASE_URL}/api/post/${postId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       const updated = res.data?.post ?? res.data;
       onUpdated && onUpdated(updated);
@@ -582,7 +595,11 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
 
   const dialog = (
     <div
-      className={inline ? "" : "fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4"}
+      className={
+        inline
+          ? ""
+          : "fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4"
+      }
       onClick={!inline ? onClose : undefined}
     >
       <div
@@ -590,7 +607,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-bold text-yellow-300 mb-3">✏️ Edit Post</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-yellow-300 mb-3">
+            ✏️ Edit Post
+          </h2>
 
           <form onSubmit={handleUpdate} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -615,7 +634,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
 
             <textarea
               value={post.description ?? ""}
-              onChange={(e) => setPost({ ...post, description: e.target.value })}
+              onChange={(e) =>
+                setPost({ ...post, description: e.target.value })
+              }
               className="w-full p-2 border rounded h-28 sm:h-32 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500"
               placeholder="Post Description"
               required
@@ -625,7 +646,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
               <input
                 type="date"
                 value={post.start_date ? post.start_date.substring(0, 10) : ""}
-                onChange={(e) => setPost({ ...post, start_date: e.target.value })}
+                onChange={(e) =>
+                  setPost({ ...post, start_date: e.target.value })
+                }
                 className="w-full p-2 border rounded bg-gray-800 text-white focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -633,7 +656,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
               <input
                 type="date"
                 value={post.last_date ? post.last_date.substring(0, 10) : ""}
-                onChange={(e) => setPost({ ...post, last_date: e.target.value })}
+                onChange={(e) =>
+                  setPost({ ...post, last_date: e.target.value })
+                }
                 className="w-full p-2 border rounded bg-gray-800 text-white focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -656,7 +681,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
 
             {/* Existing images */}
             <div>
-              <label className="text-gray-300 mb-2 block">🖼️ Current Images</label>
+              <label className="text-gray-300 mb-2 block">
+                🖼️ Current Images
+              </label>
               <div className="flex gap-2 flex-wrap">
                 {(post.attachments || []).length === 0 && (
                   <p className="text-sm text-gray-400">No images</p>
@@ -668,7 +695,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
                       <img
                         src={url}
                         alt={`attachment-${idx}`}
-                        className={`w-full h-20 object-cover rounded border ${marked ? "opacity-30" : ""}`}
+                        className={`w-full h-20 object-cover rounded border ${
+                          marked ? "opacity-30" : ""
+                        }`}
                       />
                       <div className="mt-1 flex justify-center gap-2">
                         <button
@@ -681,7 +710,11 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
                         <button
                           type="button"
                           onClick={() => toggleDeleteExistingImage(url)}
-                          className={`text-xs px-2 py-1 rounded ${marked ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}
+                          className={`text-xs px-2 py-1 rounded ${
+                            marked
+                              ? "bg-green-600 text-white"
+                              : "bg-red-600 text-white"
+                          }`}
                         >
                           {marked ? "Undo" : "Remove"}
                         </button>
@@ -694,7 +727,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
 
             {/* Existing PDFs */}
             <div>
-              <label className="text-gray-300 mb-2 block">📄 Current PDFs</label>
+              <label className="text-gray-300 mb-2 block">
+                📄 Current PDFs
+              </label>
               <div className="space-y-2">
                 {(post.pdfLink || []).length === 0 && (
                   <p className="text-sm text-gray-400">No PDFs</p>
@@ -702,9 +737,17 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
                 {(post.pdfLink || []).map((url, idx) => {
                   const marked = toDeletePdfUrls.has(url);
                   return (
-                    <div key={idx} className="flex items-center justify-between bg-gray-800 p-2 rounded">
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between bg-gray-800 p-2 rounded"
+                    >
                       <div className="truncate max-w-[70%]">
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:underline"
+                        >
                           {url.split("/").pop() || `pdf-${idx + 1}`}
                         </a>
                       </div>
@@ -712,7 +755,11 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
                         <button
                           type="button"
                           onClick={() => toggleDeleteExistingPdf(url)}
-                          className={`text-xs px-2 py-1 rounded ${marked ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}
+                          className={`text-xs px-2 py-1 rounded ${
+                            marked
+                              ? "bg-green-600 text-white"
+                              : "bg-red-600 text-white"
+                          }`}
                         >
                           {marked ? "Undo" : "Remove"}
                         </button>
@@ -725,7 +772,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
 
             {/* New images */}
             <div>
-              <label className="text-gray-300 mb-2 block">🖼️ Add Images (you can pick multiple)</label>
+              <label className="text-gray-300 mb-2 block">
+                🖼️ Add Images (you can pick multiple)
+              </label>
               <input
                 type="file"
                 accept="image/*"
@@ -739,9 +788,15 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
                 <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {newImagePreviews.map((p, i) => (
                     <div key={i} className="relative">
-                      <img src={p.url} alt={p.name} className="w-full h-20 object-cover rounded" />
+                      <img
+                        src={p.url}
+                        alt={p.name}
+                        className="w-full h-20 object-cover rounded"
+                      />
                       <div className="mt-1 flex justify-between items-center gap-2">
-                        <div className="text-xs truncate max-w-[60%]">{p.name}</div>
+                        <div className="text-xs truncate max-w-[60%]">
+                          {p.name}
+                        </div>
                         <button
                           type="button"
                           onClick={() => removeNewImageAt(i)}
@@ -758,7 +813,9 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
 
             {/* New PDFs */}
             <div>
-              <label className="text-gray-300 mb-2 block">📄 Add PDFs (you can pick multiple)</label>
+              <label className="text-gray-300 mb-2 block">
+                📄 Add PDFs (you can pick multiple)
+              </label>
               <input
                 type="file"
                 accept="application/pdf"
@@ -771,7 +828,10 @@ function EditPosts({ postId, onClose, onUpdated, inline = false }) {
               {newPdfNames.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {newPdfNames.map((n, i) => (
-                    <div key={i} className="flex items-center justify-between bg-gray-800 p-2 rounded">
+                    <div
+                      key={i}
+                      className="flex items-center justify-between bg-gray-800 p-2 rounded"
+                    >
                       <div className="text-sm truncate max-w-[70%]">{n}</div>
                       <div className="flex gap-2">
                         <button
