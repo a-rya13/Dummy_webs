@@ -569,104 +569,30 @@ export default function ManagePosts() {
             ))}
           </select>
 
-          <ul className="space-y-3 max-h-[60vh] overflow-auto posts-scroll">
-            {posts.filter((p) => postMatchesHeader(p, selectedHeader))
-              .length === 0 ? (
-              <p className="text-gray-400">No posts for this header.</p>
-            ) : (
-              posts
-                .filter((p) => postMatchesHeader(p, selectedHeader))
-                .map((p) => (
-                  <li
-                    key={p._id}
-                    className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-800 p-3 rounded-lg shadow"
-                  >
-                    <div className="w-full md:w-3/4">
-                      <h3 className="font-bold text-sm md:text-base">
-                        {p.title}
-                      </h3>
-
-                      <div
-                        className="mt-1 text-sm text-gray-200"
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(p.description || ""),
-                        }}
-                      />
-
-                      {p.useful_links?.length > 0 && (
-                        <div className="mt-2 text-sm">
-                          <p className="text-gray-300">🔗 Useful Links:</p>
-                          <ul className="list-disc list-inside">
-                            {p.useful_links.map((link, idx) => {
-                              const href = normalizeUrl(link);
-                              return (
-                                <li key={idx}>
-                                  <a
-                                    href={href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-400 hover:underline break-all"
-                                  >
-                                    {link}
-                                  </a>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      )}
-
-                      {p.attachments?.length > 0 && (
-                        <div className="mt-2 flex gap-2 flex-wrap">
-                          {p.attachments.map((url, i) => (
-                            <img
-                              key={i}
-                              src={url}
-                              alt={`attachment-${i}`}
-                              className="w-20 h-20 object-cover rounded"
-                            />
-                          ))}
-                        </div>
-                      )}
-
-                      {p.pdfLink?.length > 0 && (
-                        <div className="mt-2 text-sm">
-                          <p className="text-gray-300">📄 PDFs:</p>
-                          <ul className="list-disc list-inside">
-                            {p.pdfLink.map((url, idx) => (
-                              <li key={idx}>
-                                <a
-                                  href={url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-400 hover:underline break-all"
-                                >
-                                  {url.split("/").pop() || `pdf-${idx + 1}`}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      <p className="text-xs text-gray-400 mt-2">
-                        Index: {p.index} | Start:{" "}
-                        <span className="highlight-date">
-                          {p.start_date
-                            ? new Date(p.start_date).toLocaleDateString()
-                            : "N/A"}
-                        </span>{" "}
-                        | Last:{" "}
-                        <span className="highlight-date">
-                          {p.last_date
-                            ? new Date(p.last_date).toLocaleDateString()
-                            : "N/A"}
-                        </span>
-                      </p>
-                    </div>
-
-                    <div className="mt-3 md:mt-0 flex gap-2 md:flex-col md:items-end">
-                      <div className="flex gap-2">
+          {selectedHeader ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto posts-scroll">
+              {posts.filter((p) => postMatchesHeader(p, selectedHeader))
+                .length === 0 ? (
+                <p className="text-gray-400 col-span-full">
+                  No posts for this header.
+                </p>
+              ) : (
+                posts
+                  .filter((p) => postMatchesHeader(p, selectedHeader))
+                  .map((p) => (
+                    <div
+                      key={p._id}
+                      className="flex flex-col justify-between items-start bg-gray-800 p-3 rounded-lg shadow"
+                    >
+                      <div className="w-full">
+                        <h3 className="font-bold text-sm md:text-base">
+                          {p.title}
+                        </h3>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Index: {p.index}
+                        </p>
+                      </div>
+                      <div className="mt-2 flex gap-2 w-full">
                         <button
                           onClick={() => setEditPostId(p._id)}
                           className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-600 text-sm"
@@ -682,10 +608,83 @@ export default function ManagePosts() {
                         </button>
                       </div>
                     </div>
-                  </li>
-                ))
-            )}
-          </ul>
+                  ))
+              )}
+            </div>
+          ) : (
+            // Show all posts normally when no header is selected
+            <ul className="space-y-3 max-h-[60vh] overflow-auto posts-scroll">
+              {posts.map((p) => (
+                <li
+                  key={p._id}
+                  className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-800 p-3 rounded-lg shadow"
+                >
+                  <div className="w-full md:w-3/4">
+                    <h3 className="font-bold text-sm md:text-base">
+                      {p.title}
+                    </h3>
+                    <div
+                      className="mt-1 text-sm text-gray-200"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(p.description || ""),
+                      }}
+                    />
+                    {p.useful_links?.length > 0 && (
+                      <div className="mt-2 text-sm">
+                        <p className="text-gray-300">🔗 Useful Links:</p>
+                        <ul className="list-disc list-inside">
+                          {p.useful_links.map((link, idx) => (
+                            <li key={idx}>
+                              <a
+                                href={normalizeUrl(link)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:underline break-all"
+                              >
+                                {link}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-400 mt-2">
+                      Index: {p.index} | Start:{" "}
+                      <span className="highlight-date">
+                        {p.start_date
+                          ? new Date(p.start_date).toLocaleDateString()
+                          : "N/A"}
+                      </span>{" "}
+                      | Last:{" "}
+                      <span className="highlight-date">
+                        {p.last_date
+                          ? new Date(p.last_date).toLocaleDateString()
+                          : "N/A"}
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="mt-3 md:mt-0 flex gap-2 md:flex-col md:items-end">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setEditPostId(p._id)}
+                        className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeletePost(p._id)}
+                        disabled={actionLoading}
+                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-800 text-sm"
+                      >
+                        {actionLoading ? "Working..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 

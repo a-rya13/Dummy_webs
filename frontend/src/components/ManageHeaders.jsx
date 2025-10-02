@@ -43,8 +43,13 @@ function ManageHeaders() {
     }
   };
 
-  // ✅ Delete header (by id now)
-  const handleDeleteHeader = async (id) => {
+  // ✅ Delete header with confirmation
+  const handleDeleteHeader = async (id, name) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the header "${name}"?`
+    );
+    if (!confirmDelete) return;
+
     toast.info("🕒 Deleting header...");
     try {
       await axios.delete(`${API_BASE_URL}/api/headers/${id}`);
@@ -115,13 +120,13 @@ function ManageHeaders() {
                 </span>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setEditHeaderId(h._id)} // ✅ open modal
+                    onClick={() => setEditHeaderId(h._id)}
                     className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-600"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteHeader(h._id)} // ✅ delete by id
+                    onClick={() => handleDeleteHeader(h._id, h.name)}
                     className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-800"
                   >
                     Delete
