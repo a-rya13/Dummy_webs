@@ -172,9 +172,6 @@ export const getHeaders = async (req, res) => {
   }
 };
 
-
-
-
 // CREATE (single file)//final
 // export const createPost = async (req, res) => {
 //   try {
@@ -240,8 +237,6 @@ export const getHeaders = async (req, res) => {
 // };
 
 // UPDATE (single file — here we replace existing attachment if a new file is sent)
-
-
 
 // export const updatePost = async (req, res) => {
 //   try {
@@ -355,18 +350,31 @@ export const updatePost = async (req, res) => {
     if (updates.useful_links) {
       try {
         updates.useful_links = JSON.parse(updates.useful_links);
-        if (!Array.isArray(updates.useful_links)) updates.useful_links = [updates.useful_links];
+        if (!Array.isArray(updates.useful_links))
+          updates.useful_links = [updates.useful_links];
       } catch {
-        updates.useful_links = typeof updates.useful_links === "string"
-          ? [updates.useful_links]
-          : updates.useful_links;
+        updates.useful_links =
+          typeof updates.useful_links === "string"
+            ? [updates.useful_links]
+            : updates.useful_links;
       }
     }
 
     // sanitize description if present
     if (updates.description) {
       updates.description = sanitizeHtml(updates.description, {
-        allowedTags: ["b", "i", "u", "a", "p", "ul", "li", "br", "strong", "em"],
+        allowedTags: [
+          "b",
+          "i",
+          "u",
+          "a",
+          "p",
+          "ul",
+          "li",
+          "br",
+          "strong",
+          "em",
+        ],
         allowedAttributes: { a: ["href", "target", "rel"] },
       });
     }
@@ -380,7 +388,7 @@ export const updatePost = async (req, res) => {
         const parsed = JSON.parse(post.attachments);
         if (Array.isArray(parsed)) {
           post.attachments = parsed.map((it) =>
-            typeof it === "string" ? it : (it && it.url ? it.url : String(it))
+            typeof it === "string" ? it : it && it.url ? it.url : String(it)
           );
         } else if (typeof parsed === "string") {
           post.attachments = [parsed];
@@ -404,9 +412,15 @@ export const updatePost = async (req, res) => {
           if (first && typeof first === "object" && first.public_id) {
             try {
               await cloudinary.uploader.destroy(first.public_id);
-              console.log("Deleted old Cloudinary image by public_id:", first.public_id);
+              console.log(
+                "Deleted old Cloudinary image by public_id:",
+                first.public_id
+              );
             } catch (delErr) {
-              console.warn("Failed to delete old Cloudinary image by stored public_id:", delErr?.message ?? delErr);
+              console.warn(
+                "Failed to delete old Cloudinary image by stored public_id:",
+                delErr?.message ?? delErr
+              );
             }
           } else if (typeof first === "string") {
             // attachments stored as URL string — try to extract public_id from URL
@@ -414,19 +428,30 @@ export const updatePost = async (req, res) => {
             if (publicId) {
               try {
                 await cloudinary.uploader.destroy(publicId);
-                console.log("Deleted old Cloudinary image by extracted public_id:", publicId);
+                console.log(
+                  "Deleted old Cloudinary image by extracted public_id:",
+                  publicId
+                );
               } catch (delErr) {
-                console.warn("Failed to delete old Cloudinary image by extracted public_id:", delErr?.message ?? delErr);
+                console.warn(
+                  "Failed to delete old Cloudinary image by extracted public_id:",
+                  delErr?.message ?? delErr
+                );
               }
             } else {
-              console.warn("Could not determine public_id from attachments URL, skipping deletion.");
+              console.warn(
+                "Could not determine public_id from attachments URL, skipping deletion."
+              );
             }
           } else {
             console.warn("Old attachment format unknown — skipping deletion.");
           }
         }
       } catch (err) {
-        console.error("Error while attempting to delete old Cloudinary image:", err);
+        console.error(
+          "Error while attempting to delete old Cloudinary image:",
+          err
+        );
         // proceed to upload new file even if deletion fails
       }
 
@@ -435,14 +460,21 @@ export const updatePost = async (req, res) => {
         const result = await uploadToCloudinary(req.file.buffer, "posts");
         if (!result || !result.secure_url) {
           console.error("Cloudinary returned no secure_url:", result);
-          return res.status(500).json({ error: "Cloudinary upload failed or returned no URL" });
+          return res
+            .status(500)
+            .json({ error: "Cloudinary upload failed or returned no URL" });
         }
 
         // Save only the URL string to match your current schema ([String])
         post.attachments = [result.secure_url];
       } catch (uploadErr) {
         console.error("Cloudinary upload error in updatePost:", uploadErr);
-        return res.status(500).json({ error: "Cloudinary upload failed", details: uploadErr.message || uploadErr });
+        return res
+          .status(500)
+          .json({
+            error: "Cloudinary upload failed",
+            details: uploadErr.message || uploadErr,
+          });
       }
     }
 
@@ -467,9 +499,6 @@ export const updatePost = async (req, res) => {
     return res.status(500).json({ error: error.message || "Server error" });
   }
 };
-
-
-
 
 // controllers/postController.js
 
@@ -509,7 +538,14 @@ export const createPost = async (req, res) => {
       useful_links,
     } = req.body;
 
-    if (!title || !category || !description || index == null || !start_date || !last_date) {
+    if (
+      !title ||
+      !category ||
+      !description ||
+      index == null ||
+      !start_date ||
+      !last_date
+    ) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
@@ -529,16 +565,16 @@ export const createPost = async (req, res) => {
     });
 
     const pdfUploadPromises = pdfFiles.map((file) => {
-  // always give it a .pdf extension
-  const publicId = `${uuidv4()}.pdf`;
+      // always give it a .pdf extension
+      const publicId = `${uuidv4()}.pdf`;
 
-  return uploadBufferToCloudinary(file.buffer, {
-    folder: "posts/pdfs",  // Cloudinary folder
-    resource_type: "raw",  // needed for PDFs
-    public_id: publicId,   // unique filename with .pdf
-    overwrite: true,
-  }).then((result) => result.secure_url || result.url);
-});
+      return uploadBufferToCloudinary(file.buffer, {
+        folder: "posts/pdfs", // Cloudinary folder
+        resource_type: "raw", // needed for PDFs
+        public_id: publicId, // unique filename with .pdf
+        overwrite: true,
+      }).then((result) => result.secure_url || result.url);
+    });
 
     // Execute uploads in parallel and handle errors with clear messages
     let imageUrls = [];
@@ -561,7 +597,8 @@ export const createPost = async (req, res) => {
     if (useful_links) {
       try {
         usefulLinksArray = JSON.parse(useful_links);
-        if (!Array.isArray(usefulLinksArray)) usefulLinksArray = [usefulLinksArray];
+        if (!Array.isArray(usefulLinksArray))
+          usefulLinksArray = [usefulLinksArray];
       } catch {
         usefulLinksArray = useful_links
           .split(",")
@@ -660,17 +697,29 @@ export const editPost = async (req, res) => {
     let deletePdfs = [];
     if (deleteImageUrls) {
       try {
-        deleteImages = typeof deleteImageUrls === "string" ? JSON.parse(deleteImageUrls) : deleteImageUrls;
+        deleteImages =
+          typeof deleteImageUrls === "string"
+            ? JSON.parse(deleteImageUrls)
+            : deleteImageUrls;
       } catch {
         // if not JSON, assume comma separated
-        deleteImages = String(deleteImageUrls).split(",").map((s) => s.trim()).filter(Boolean);
+        deleteImages = String(deleteImageUrls)
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
       }
     }
     if (deletePdfUrls) {
       try {
-        deletePdfs = typeof deletePdfUrls === "string" ? JSON.parse(deletePdfUrls) : deletePdfUrls;
+        deletePdfs =
+          typeof deletePdfUrls === "string"
+            ? JSON.parse(deletePdfUrls)
+            : deletePdfUrls;
       } catch {
-        deletePdfs = String(deletePdfUrls).split(",").map((s) => s.trim()).filter(Boolean);
+        deletePdfs = String(deletePdfUrls)
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
       }
     }
 
@@ -680,9 +729,15 @@ export const editPost = async (req, res) => {
       const { public_id, resource_type } = extractPublicIdAndTypeFromUrl(url);
       if (!public_id) continue;
       try {
-        await cloudinary.uploader.destroy(public_id, { resource_type: resource_type });
+        await cloudinary.uploader.destroy(public_id, {
+          resource_type: resource_type,
+        });
       } catch (err) {
-        console.warn("Failed to destroy image on Cloudinary:", public_id, err?.message || err);
+        console.warn(
+          "Failed to destroy image on Cloudinary:",
+          public_id,
+          err?.message || err
+        );
         // continue — still remove from DB
       }
       // remove URL(s) matching this url
@@ -694,9 +749,15 @@ export const editPost = async (req, res) => {
       const { public_id, resource_type } = extractPublicIdAndTypeFromUrl(url);
       if (!public_id) continue;
       try {
-        await cloudinary.uploader.destroy(public_id, { resource_type: resource_type });
+        await cloudinary.uploader.destroy(public_id, {
+          resource_type: resource_type,
+        });
       } catch (err) {
-        console.warn("Failed to destroy pdf on Cloudinary:", public_id, err?.message || err);
+        console.warn(
+          "Failed to destroy pdf on Cloudinary:",
+          public_id,
+          err?.message || err
+        );
       }
       post.pdfLink = (post.pdfLink || []).filter((u) => u !== url);
     }
@@ -725,7 +786,10 @@ export const editPost = async (req, res) => {
         if (r.status === "fulfilled" && r.value?.url) {
           post.attachments = [...(post.attachments || []), r.value.url];
         } else {
-          console.warn("Image upload failed:", r.status === "rejected" ? r.reason : r);
+          console.warn(
+            "Image upload failed:",
+            r.status === "rejected" ? r.reason : r
+          );
         }
       });
     }
@@ -748,7 +812,10 @@ export const editPost = async (req, res) => {
         if (r.status === "fulfilled" && r.value?.url) {
           post.pdfLink = [...(post.pdfLink || []), r.value.url];
         } else {
-          console.warn("PDF upload failed:", r.status === "rejected" ? r.reason : r);
+          console.warn(
+            "PDF upload failed:",
+            r.status === "rejected" ? r.reason : r
+          );
         }
       });
     }
@@ -767,7 +834,8 @@ export const editPost = async (req, res) => {
       if (useful_links) {
         try {
           usefulLinksArray = JSON.parse(useful_links);
-          if (!Array.isArray(usefulLinksArray)) usefulLinksArray = [usefulLinksArray];
+          if (!Array.isArray(usefulLinksArray))
+            usefulLinksArray = [usefulLinksArray];
         } catch {
           usefulLinksArray = String(useful_links)
             .split(",")
@@ -787,7 +855,3 @@ export const editPost = async (req, res) => {
     return res.status(500).json({ message: err?.message || "Server error" });
   }
 };
-
-
-
-

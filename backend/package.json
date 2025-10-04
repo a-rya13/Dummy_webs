@@ -21,7 +21,7 @@
     "mongoose": "^8.18.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "github:affanshahid/multer-storage-cloudinary",
-    "resend": "^6.1.0",
+    "resend": "^6.1.2",
     "sanitize-html": "^2.17.0",
     "streamifier": "^0.1.1",
     "uuid": "^13.0.0"
