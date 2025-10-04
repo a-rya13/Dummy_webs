@@ -7,9 +7,16 @@ import { Resend } from "resend";
 // if (!process.env.RESEND_API_KEY) {
 //   throw new Error("RESEND_API_KEY is missing in your .env file!");
 // }
+let resend;
 
-const resend = new Resend("re_ZbZF9GhK_3fD9dJxCmiXTLHjxKnX1CD3X");
-
+export const getResendInstance = () => {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) throw new Error("RESEND_API_KEY is missing!");
+    resend = new Resend(apiKey);
+  }
+  return resend;
+};
 // ================= REGISTER =================
 export const registerAdmin = async (req, res) => {
   try {
@@ -114,6 +121,7 @@ export const forgotPassword = async (req, res) => {
     const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
 
     // Send email using Resend
+    const resend = getResendInstance();
     await resend.emails.send({
       from: "Admin Panel <onboarding@resend.dev>",
       to: email,

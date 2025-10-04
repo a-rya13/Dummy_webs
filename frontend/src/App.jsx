@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import { ToastContainer } from "react-toastify";
+import ResetPassword from "./pages/ResetPassword";
 
 // 🔒 Protected Route wrapper
 function ProtectedRoute({ children }) {
@@ -38,6 +39,7 @@ function App() {
           }
         />
         <Route path="/post/:id" element={<PostDetails />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
 
       {/* Toast Container */}
