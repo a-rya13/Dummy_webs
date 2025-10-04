@@ -17,7 +17,7 @@ const app = express();
 // ✅ Enable CORS so frontend (5173) can call backend (5000)
 app.use(
   cors({
-    origin: ["http://localhost:5173", process.env.FRONTEND_URL],
+    origin: ["http://localhost:5173", "https://anyweb.netlify.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
