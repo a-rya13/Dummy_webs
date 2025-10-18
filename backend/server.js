@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import headerRoutes from "./routes/headerRoutes.js";
 import websiteRoutes from "./routes/websiteRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 import "./config/cloudconfig.js";
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/headers", headerRoutes);
 app.use("/api/website", websiteRoutes);
+app.use("/api/contact", contactRoutes);
 // Test Route
 app.get("/", (req, res) => {
   res.send("✅ API is running...");

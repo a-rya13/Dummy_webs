@@ -44,7 +44,7 @@ export default function ManagePosts() {
   const postDetailsRef = useRef(null);
   const isFocusedRef = useRef(false);
   const [charCount, setCharCount] = useState(0);
-  const CHAR_LIMIT = 500;
+  const CHAR_LIMIT = 3000;
 
   // file input refs for clearing
   const imageInputRef = useRef(null);
@@ -452,18 +452,24 @@ export default function ManagePosts() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-900 text-white"
-            />
-            <input
-              type="date"
-              value={lastDate}
-              onChange={(e) => setLastDate(e.target.value)}
-              className="w-full p-2 border rounded bg-gray-900 text-white"
-            />
+            <div className="flex flex-col">
+              <label className="text-gray-300 mb-1">Start Date</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full p-2 border rounded bg-gray-900 text-white"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-gray-300 mb-1">End Date</label>
+              <input
+                type="date"
+                value={lastDate}
+                onChange={(e) => setLastDate(e.target.value)}
+                className="w-full p-2 border rounded bg-gray-900 text-white"
+              />
+            </div>
           </div>
 
           <div>

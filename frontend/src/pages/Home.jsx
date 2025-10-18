@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import ContactUs from "../components/ContactUs";
 
 export default function Home() {
   const [websiteName, setWebsiteName] = useState("News Web");
   const [headers, setHeaders] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [selectedHeaderId, setSelectedHeaderId] = useState(""); // used for filtering
+  const [selectedHeaderId, setSelectedHeaderId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -39,7 +40,6 @@ export default function Home() {
       (p) => p.category === headerId && new Date(p.last_date) >= new Date()
     );
 
-  // Posts to show in middle column
   const middlePosts = selectedHeaderId
     ? getPostsByHeader(selectedHeaderId)
     : posts.filter((p) => new Date(p.last_date) >= new Date());
@@ -66,6 +66,7 @@ export default function Home() {
           >
             Home
           </button>
+
           {headers.map((h) => (
             <button
               key={h._id}
@@ -79,6 +80,18 @@ export default function Home() {
               {h.name}
             </button>
           ))}
+
+          {/* Contact Us Button */}
+          <button
+            onClick={() =>
+              document.getElementById("contact")?.scrollIntoView({
+                behavior: "smooth",
+              })
+            }
+            className="px-4 py-2 rounded-full font-semibold transition-all duration-300 text-white hover:bg-orange-700"
+          >
+            Contact Us
+          </button>
         </div>
       </nav>
 
@@ -116,7 +129,7 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Middle Column (triple width) */}
+            {/* Middle Column */}
             <div className="bg-gray-50 p-6 rounded-lg shadow overflow-y-auto col-span-3 max-h-full">
               <h2 className="text-orange-600 font-bold mb-4 text-center text-2xl">
                 {selectedHeaderId
@@ -165,6 +178,9 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Contact Us Section */}
+      <ContactUs />
 
       {/* Footer */}
       <footer className="bg-gray-200 text-gray-800 text-center py-4 border-t border-gray-300">
