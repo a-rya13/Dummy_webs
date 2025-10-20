@@ -12,7 +12,7 @@ export const contactUs = async (req, res) => {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: process.env.EMAIL_USER,
+      from: "AdminPanel <onboarding@resend.dev>",
       to: process.env.EMAIL_USER,
       subject: `📩 New Contact Message from ${name}`,
       text: `Name: ${name}\nPhone: ${phone}\n\nMessage:\n${message}`,
